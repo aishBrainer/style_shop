@@ -165,12 +165,12 @@ export function ModelPicker({
                 )}
 
                 {warning && (
-                  <span className="absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-warning/90 text-black">
+                  <span className="absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-warning text-white">
                     <AlertTriangle className="h-3 w-3" />
                   </span>
                 )}
 
-                <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/85 to-transparent px-2 pb-1.5 pt-5 text-left text-[11px]">
+                <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-plum/85 to-transparent px-2 pb-1.5 pt-5 text-left text-[11px]">
                   {model.name}
                 </span>
               </button>

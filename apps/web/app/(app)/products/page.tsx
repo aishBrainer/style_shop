@@ -50,7 +50,7 @@ export default function ProductsPage() {
     <div className="mx-auto max-w-6xl">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Products</h1>
+          <h1 className="display text-2xl">Products</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Your garment catalogue. Upload once, reuse across every generation.
           </p>

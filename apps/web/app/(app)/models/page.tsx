@@ -14,7 +14,7 @@ export default function ModelsPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Models</h1>
+        <h1 className="display text-2xl">Models</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Browse the library or upload your own. Custom uploads are checked for framing and
           focus before they can be used.

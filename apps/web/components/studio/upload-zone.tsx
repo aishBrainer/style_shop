@@ -83,7 +83,7 @@ export function UploadZone({
         />
         <button
           onClick={() => onChange(null)}
-          className="absolute right-2 top-2 rounded-lg bg-black/70 p-1.5 text-ink-muted backdrop-blur transition hover:text-ink"
+          className="absolute right-2 top-2 rounded-lg bg-plum/70 p-1.5 text-white/75 backdrop-blur transition hover:text-white"
           aria-label={`Remove ${label}`}
         >
           <X className="h-4 w-4" />
@@ -107,7 +107,7 @@ export function UploadZone({
           'rounded-xl border border-dashed p-6 text-center transition',
           isDragActive
             ? 'border-accent bg-accent-muted'
-            : 'border-edge hover:border-edge-strong hover:bg-white/[0.02]',
+            : 'border-edge hover:border-edge-strong hover:bg-canvas-overlay',
           uploading && 'pointer-events-none opacity-60',
         )}
       >

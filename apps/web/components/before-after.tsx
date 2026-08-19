@@ -71,7 +71,7 @@ export function BeforeAfter({
       </div>
 
       <div
-        className="absolute inset-y-0 w-0.5 bg-white/90 shadow-[0_0_12px_rgba(0,0,0,0.6)]"
+        className="absolute inset-y-0 w-0.5 bg-white/90 shadow-[0_0_12px_rgba(54,39,69,0.45)]"
         style={{ left: `${position}%` }}
       >
         <div
@@ -94,10 +94,10 @@ export function BeforeAfter({
         </div>
       </div>
 
-      <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium backdrop-blur">
+      <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-plum/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
         {beforeLabel}
       </span>
-      <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium backdrop-blur">
+      <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-plum/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
         {afterLabel}
       </span>
     </div>

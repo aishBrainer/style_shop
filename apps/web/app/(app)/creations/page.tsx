@@ -33,7 +33,7 @@ export default function CreationsPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Creations</h1>
+        <h1 className="display text-2xl">Creations</h1>
         <p className="mt-1 text-sm text-ink-muted">Everything you have generated.</p>
       </header>
 

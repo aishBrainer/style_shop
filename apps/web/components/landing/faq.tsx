@@ -49,7 +49,7 @@ export function LandingFaq() {
             <button
               onClick={() => setOpen(isOpen ? null : i)}
               aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-white/[0.02]"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-canvas-overlay"
             >
               <span className="text-sm font-medium">{faq.q}</span>
               <ChevronDown

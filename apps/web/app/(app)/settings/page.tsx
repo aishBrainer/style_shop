@@ -55,7 +55,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <header>
-        <h1 className="text-xl font-semibold">Settings</h1>
+        <h1 className="display text-2xl">Settings</h1>
         <p className="mt-1 text-sm text-ink-muted">Your account and workspace.</p>
       </header>
 

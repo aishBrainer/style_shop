@@ -63,7 +63,7 @@ export default function BrandKitPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Brand Kit</h1>
+        <h1 className="display text-2xl">Brand Kit</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Saved once, applied to every creative you generate.
         </p>
