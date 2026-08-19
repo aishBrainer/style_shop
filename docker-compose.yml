@@ -1,0 +1,244 @@
+# Per §54: every service runs through compose. GPU workers live in the `gpu`
+# profile so `docker compose up` works on a machine without CUDA.
+
+name: ai-fashion-studio
+
+x-api-env: &api-env
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
+  DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://fashion:fashion@postgres:5432/fashion_studio}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+  CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
+  CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/2}
+  S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://minio:9000}
+  S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL:-http://localhost:9000}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:-minioadmin}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:-minioadmin}
+  S3_BUCKET: ${S3_BUCKET:-fashion-studio}
+  S3_REGION: ${S3_REGION:-us-east-1}
+  S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+  SIGNED_URL_TTL_SECONDS: ${SIGNED_URL_TTL_SECONDS:-900}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+  MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-20}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8000/api/v1/auth/google/callback}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-no-reply@aifashionstudio.local}
+  VTON_PROVIDER: ${VTON_PROVIDER:-mock}
+  IMAGE_PROVIDER: ${IMAGE_PROVIDER:-mock}
+  SEGMENTATION_PROVIDER: ${SEGMENTATION_PROVIDER:-rembg}
+  UPSCALE_PROVIDER: ${UPSCALE_PROVIDER:-mock}
+  VIDEO_PROVIDER: ${VIDEO_PROVIDER:-mock}
+  AI_DEVICE: ${AI_DEVICE:-auto}
+  AI_WEIGHTS_DIR: ${AI_WEIGHTS_DIR:-/weights}
+  MAX_CONCURRENT_JOBS_PER_WORKER: ${MAX_CONCURRENT_JOBS_PER_WORKER:-1}
+  JOB_TIMEOUT_SECONDS: ${JOB_TIMEOUT_SECONDS:-900}
+  JOB_MAX_RETRIES: ${JOB_MAX_RETRIES:-2}
+  ALLOW_NON_COMMERCIAL_MODELS: ${ALLOW_NON_COMMERCIAL_MODELS:-false}
+
+x-worker-base: &worker-base
+  build:
+    context: ./apps/api
+    dockerfile: Dockerfile
+    target: base
+  environment: *api-env
+  volumes:
+    - ./apps/api:/srv/app
+    - weights:/weights
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+    minio: { condition: service_healthy }
+  restart: unless-stopped
+
+services:
+  # ---------------------------------------------------------------- infra ---
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fashion}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fashion}
+      POSTGRES_DB: ${POSTGRES_DB:-fashion_studio}
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fashion} -d ${POSTGRES_DB:-fashion_studio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/data]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Creates the bucket once, then exits.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio: { condition: service_healthy }
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${S3_ACCESS_KEY:-minioadmin} ${S3_SECRET_KEY:-minioadmin} &&
+      mc mb --ignore-existing local/${S3_BUCKET:-fashion-studio} &&
+      mc anonymous set none local/${S3_BUCKET:-fashion-studio} &&
+      echo 'bucket ready'
+      "
+    restart: "no"
+
+  # ------------------------------------------------------------ application --
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: base
+    command: >
+      /bin/sh -c "alembic upgrade head &&
+      python -m app.seed &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    environment: *api-env
+    ports: ["${API_PORT:-8000}:8000"]
+    volumes:
+      - ./apps/api:/srv/app
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      minio: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      target: dev
+    command: ["npm", "run", "dev"]
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-AI Fashion Studio}
+      API_INTERNAL_URL: http://api:8000
+      WATCHPACK_POLLING: "true"
+    ports: ["${WEB_PORT:-3000}:3000"]
+    volumes:
+      - ./apps/web:/srv/web
+      - /srv/web/node_modules
+      - /srv/web/.next
+    depends_on:
+      api: { condition: service_started }
+    restart: unless-stopped
+
+  # --------------------------------------------------------------- workers --
+  # §49: one process per engine so each scales independently.
+
+  # CPU-only work: thumbnails, background removal, filters, validation.
+  worker-cpu:
+    <<: *worker-base
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "cpu", "-n", "cpu@%h", "--concurrency", "2", "--loglevel", "info"]
+
+  # Try-on. Runs the `mock` provider on CPU by default; give it the gpu
+  # profile config below once a licensed checkpoint is in place.
+  worker-vton:
+    <<: *worker-base
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "vton", "-n", "vton@%h", "--concurrency", "1", "--loglevel", "info"]
+
+  # Diffusion image work: backgrounds, product photography, inpainting, upscale.
+  worker-image:
+    <<: *worker-base
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "image", "-n", "image@%h", "--concurrency", "1", "--loglevel", "info"]
+
+  # Phase 2. Off by default — video weights are large and slow.
+  worker-video:
+    <<: *worker-base
+    profiles: ["video"]
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "video", "-n", "video@%h", "--concurrency", "1", "--loglevel", "info"]
+
+  # Periodic maintenance: stale-job reaping, usage rollups, retention sweeps.
+  beat:
+    <<: *worker-base
+    command: ["celery", "-A", "app.queue.celery_app:celery", "beat", "--loglevel", "info"]
+
+  # GPU variants. Enable with:  docker compose --profile gpu up
+  # Start these *instead of* worker-vton / worker-image.
+  worker-vton-gpu:
+    <<: *worker-base
+    profiles: ["gpu"]
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "vton", "-n", "vton-gpu@%h", "--concurrency", "1", "--loglevel", "info"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  worker-image-gpu:
+    <<: *worker-base
+    profiles: ["gpu"]
+    command: ["celery", "-A", "app.queue.celery_app:celery", "worker",
+              "-Q", "image", "-n", "image-gpu@%h", "--concurrency", "1", "--loglevel", "info"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ----------------------------------------------------------------- extras --
+  flower:
+    image: mher/flower:2.0
+    profiles: ["ops"]
+    command: ["celery", "--broker=${CELERY_BROKER_URL:-redis://redis:6379/1}", "flower", "--port=5555"]
+    ports: ["5555:5555"]
+    depends_on:
+      redis: { condition: service_healthy }
+
+  nginx:
+    image: nginx:alpine
+    profiles: ["proxy"]
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["80:80"]
+    depends_on: [api, web]
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  weights:

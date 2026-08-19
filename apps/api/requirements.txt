@@ -1,0 +1,55 @@
+# --- web ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
+
+# --- database ---
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+
+# --- auth ---
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+pyjwt==2.10.1
+itsdangerous==2.2.0
+
+# --- queue / cache ---
+celery==5.4.0
+redis==5.2.1
+
+# --- storage ---
+boto3==1.35.85
+
+# --- imaging (CPU; works everywhere) ---
+pillow==11.0.0
+numpy==2.2.1
+opencv-python-headless==4.10.0.84
+rembg[cpu]==2.0.61
+
+# --- http / misc ---
+httpx==0.28.1
+structlog==24.4.0
+tenacity==9.0.0
+
+# --- dev / test ---
+pytest==8.3.4
+pytest-asyncio==0.25.0
+aiosqlite==0.20.0
+
+# ---------------------------------------------------------------------------
+# GPU / heavy AI dependencies are intentionally NOT listed here so the default
+# image stays small and buildable on any machine. Install them into the worker
+# image only when you switch a provider off "mock":
+#
+#   torch torchvision --index-url https://download.pytorch.org/whl/cu124
+#   diffusers transformers accelerate safetensors
+#   basicsr realesrgan            # upscaler
+#   segment-anything-2            # SAM 2 auto-mask (Apache-2.0)
+#
+# See apps/api/Dockerfile (the `gpu` stage) and MODEL_LICENSE.md.
+# ---------------------------------------------------------------------------

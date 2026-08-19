@@ -1,0 +1,226 @@
+# Render Blueprint — backend stack for AI Fashion Studio.
+#
+# Deploy with: Render dashboard → New → Blueprint → point at this repo.
+#
+# What this provisions:
+#   api            FastAPI web service (public)
+#   worker-cpu     background removal, adjustments, product analysis
+#   worker-image   diffusion work (backgrounds, photography, inpaint, upscale)
+#   worker-vton    try-on
+#   beat           periodic maintenance (stale-job reaping, usage rollups)
+#   fashion-db     PostgreSQL
+#   fashion-redis  Redis (queue + pub/sub for live progress)
+#
+# What it does NOT provision, and you must supply:
+#
+#   1. OBJECT STORAGE. Render has no S3-compatible service. Uploads and
+#      generated images need external storage — Cloudflare R2, Backblaze B2 or
+#      AWS S3. The S3_* variables below are marked `sync: false`, so Render
+#      prompts for them at deploy time instead of baking them into git.
+#      Without these the API starts but every upload fails.
+#
+#   2. A GPU. Render has no GPU instances, so every *_PROVIDER below is set to
+#      the CPU reference implementation. Background removal, adjustments and
+#      upscaling genuinely work. Try-on does NOT — the mock provider composites
+#      the garment onto the torso and is not a try-on model. To run real
+#      weights, host worker-vton and worker-image on a GPU box that can reach
+#      this Redis and Postgres, and leave these two workers scaled to zero.
+#
+# Cost note: worker services and Redis have no free tier on Render. Only `api`
+# can run on a free plan, and free web services sleep when idle — which stalls
+# the queue. Plans below are the cheapest that actually function.
+
+services:
+  # ------------------------------------------------------------------ API --
+  - type: web
+    name: fashion-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    healthCheckPath: /health
+    # Render injects $PORT and expects the process to bind it — the Dockerfile's
+    # hardcoded 8000 would fail the health check. Migrations and seeding run
+    # here only, never in a worker, so they cannot race each other.
+    dockerCommand: >
+      sh -c "alembic upgrade head &&
+      python -m app.seed &&
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      # Your Vercel URL, e.g. https://style-shop.vercel.app
+      # Required: without it the browser rejects the auth cookie.
+      - key: CORS_ORIGINS
+        sync: false
+      - key: WEB_URL
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fashion-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: fashion-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: fashion-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: fashion-redis
+          property: connectionString
+      # --- object storage: fill these in at deploy time ---
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_PUBLIC_ENDPOINT_URL
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_FORCE_PATH_STYLE
+        value: "true"
+      # --- AI providers (CPU only on Render) ---
+      - key: VTON_PROVIDER
+        value: mock
+      - key: IMAGE_PROVIDER
+        value: mock
+      - key: SEGMENTATION_PROVIDER
+        value: rembg
+      - key: UPSCALE_PROVIDER
+        value: mock
+      - key: AI_DEVICE
+        value: cpu
+      - key: ALLOW_NON_COMMERCIAL_MODELS
+        value: "false"
+
+  # -------------------------------------------------------------- workers --
+  - type: worker
+    name: fashion-worker-cpu
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    dockerCommand: >
+      celery -A app.queue.celery_app:celery worker
+      -Q cpu -n cpu@%h --concurrency 2 --loglevel info
+    envVars:
+      - fromGroup: fashion-worker-env
+
+  - type: worker
+    name: fashion-worker-image
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    dockerCommand: >
+      celery -A app.queue.celery_app:celery worker
+      -Q image -n image@%h --concurrency 1 --loglevel info
+    envVars:
+      - fromGroup: fashion-worker-env
+
+  - type: worker
+    name: fashion-worker-vton
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    dockerCommand: >
+      celery -A app.queue.celery_app:celery worker
+      -Q vton -n vton@%h --concurrency 1 --loglevel info
+    envVars:
+      - fromGroup: fashion-worker-env
+
+  - type: worker
+    name: fashion-beat
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    dockerCommand: celery -A app.queue.celery_app:celery beat --loglevel info
+    envVars:
+      - fromGroup: fashion-worker-env
+
+  # ---------------------------------------------------------------- redis --
+  - type: redis
+    name: fashion-redis
+    plan: starter
+    region: oregon
+    # Reachable only from services in this blueprint, never the public internet.
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+
+databases:
+  - name: fashion-db
+    databaseName: fashion_studio
+    user: fashion
+    plan: basic-256mb
+    region: oregon
+
+# Shared by every worker. Kept in one group so a credential rotation is a
+# single edit rather than four.
+envVarGroups:
+  - name: fashion-worker-env
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_PUBLIC_ENDPOINT_URL
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_FORCE_PATH_STYLE
+        value: "true"
+      - key: VTON_PROVIDER
+        value: mock
+      - key: IMAGE_PROVIDER
+        value: mock
+      - key: SEGMENTATION_PROVIDER
+        value: rembg
+      - key: UPSCALE_PROVIDER
+        value: mock
+      - key: AI_DEVICE
+        value: cpu
+      - key: AI_WEIGHTS_DIR
+        value: /weights
+      - key: ALLOW_NON_COMMERCIAL_MODELS
+        value: "false"

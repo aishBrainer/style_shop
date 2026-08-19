@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "headers": [
+    {
+      "source": "/api/v1/events",
+      "headers": [
+        { "key": "X-Accel-Buffering", "value": "no" },
+        { "key": "Cache-Control", "value": "no-cache, no-transform" }
+      ]
+    }
+  ]
+}
