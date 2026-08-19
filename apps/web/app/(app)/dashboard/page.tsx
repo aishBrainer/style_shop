@@ -41,7 +41,7 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <header>
-        <h1 className="text-xl font-semibold">
+        <h1 className="display text-2xl">
           {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
         </h1>
         <p className="mt-1 text-sm text-ink-muted">

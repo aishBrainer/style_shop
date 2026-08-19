@@ -141,7 +141,7 @@ function ProgressCard({ job }: { job: Job }) {
         <span className="font-mono text-sm text-ink-muted">{job.progress}%</span>
       </div>
 
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-edge">
         <div
           className="h-full rounded-full bg-accent transition-all duration-500"
           style={{ width: `${Math.max(3, job.progress)}%` }}

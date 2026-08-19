@@ -409,7 +409,7 @@ function ToolButton({
       aria-pressed={active}
       className={cn(
         'grid h-8 w-8 place-items-center rounded-lg transition',
-        active ? 'bg-accent-muted text-accent' : 'text-ink-muted hover:bg-white/5 hover:text-ink',
+        active ? 'bg-accent-muted text-accent' : 'text-ink-muted hover:bg-canvas-overlay hover:text-ink',
       )}
     >
       {children}

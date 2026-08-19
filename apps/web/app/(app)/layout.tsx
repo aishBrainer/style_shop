@@ -94,7 +94,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-40 bg-plum/40 lg:hidden"
           onClick={() => setMobileOpen(false)}
           role="presentation"
         />
@@ -103,7 +103,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-edge bg-canvas/80 px-4 backdrop-blur-xl sm:px-6">
           <button
-            className="rounded-lg p-2 text-ink-muted transition hover:bg-white/5 lg:hidden"
+            className="rounded-lg p-2 text-ink-muted transition hover:bg-canvas-overlay lg:hidden"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle navigation"
           >
@@ -232,7 +232,7 @@ function NavLink({
       href={href}
       className={cn(
         'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition',
-        active ? 'bg-accent-muted text-accent' : 'text-ink-muted hover:bg-white/[0.04] hover:text-ink',
+        active ? 'bg-accent-muted text-accent' : 'text-ink-muted hover:bg-canvas-overlay hover:text-ink',
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />

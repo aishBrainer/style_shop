@@ -4,11 +4,13 @@
 
 @layer base {
   :root {
+    /* Matches the reference site, which uses the system stack rather than a
+       webfont for body copy. --font-display is injected by next/font. */
     --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -16,7 +18,14 @@
     font-family: var(--font-sans);
   }
 
-  /* The studio is image-heavy; a bright scrollbar fights the artwork. */
+  /* Display type is the serif, as on the reference site. Applied via the
+     .display utility rather than a blanket heading rule, so dashboard chrome
+     stays sans and only editorial headlines pick up the serif. */
+  .display {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  /* The studio is image-heavy; a heavy scrollbar fights the artwork. */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -25,18 +34,18 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-white/10;
+    @apply rounded-full bg-ink/15;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/20;
+    @apply bg-ink/25;
   }
 
   ::selection {
-    @apply bg-accent/40 text-white;
+    @apply bg-accent/20 text-ink;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-accent/70 ring-offset-2 ring-offset-canvas;
+    @apply outline-none ring-2 ring-accent/60 ring-offset-2 ring-offset-canvas;
   }
 }
 
@@ -48,31 +57,33 @@
   .field {
     @apply w-full rounded-xl border border-edge bg-canvas px-3.5 py-2.5 text-sm text-ink
            placeholder:text-ink-faint transition
-           focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30;
+           focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/25;
   }
 
   .label {
     @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-ink-muted;
   }
 
-  /* Loading placeholder that does not flash white on a dark canvas. */
+  /* Loading placeholder tinted with ink, so it reads as "content pending"
+     rather than as an empty white hole on a white canvas. */
   .skeleton {
-    @apply relative overflow-hidden rounded-xl bg-white/[0.04];
+    @apply relative overflow-hidden rounded-xl bg-ink/[0.06];
   }
   .skeleton::after {
-    @apply absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/[0.06] to-transparent;
+    @apply absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent;
     content: '';
     transform: translateX(-100%);
   }
 
-  /* Checkerboard, so a transparent PNG reads as transparent rather than black. */
+  /* Checkerboard, so a transparent PNG reads as transparent rather than as a
+     plain white fill on a white page. */
   .checkerboard {
-    background-color: #1a1d26;
+    background-color: #ffffff;
     background-image:
-      linear-gradient(45deg, #232733 25%, transparent 25%),
-      linear-gradient(-45deg, #232733 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #232733 75%),
-      linear-gradient(-45deg, transparent 75%, #232733 75%);
+      linear-gradient(45deg, #ececf1 25%, transparent 25%),
+      linear-gradient(-45deg, #ececf1 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ececf1 75%),
+      linear-gradient(-45deg, transparent 75%, #ececf1 75%);
     background-size: 16px 16px;
     background-position: 0 0, 0 8px, 8px -8px, -8px 0;
   }

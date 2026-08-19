@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <Card>
-        <h1 className="text-lg font-medium">Check your inbox</h1>
+        <h1 className="display text-xl">Check your inbox</h1>
         <p className="mt-2 text-sm text-ink-muted">
           If <span className="text-ink">{email}</span> is registered, a reset link is on its way.
           It expires in one hour.
@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card>
-      <h1 className="text-lg font-medium">Reset your password</h1>
+      <h1 className="display text-xl">Reset your password</h1>
       <p className="mt-1 text-sm text-ink-muted">We will email you a link.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

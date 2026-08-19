@@ -37,7 +37,7 @@ export default function BillingPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <header>
-        <h1 className="text-xl font-semibold">Billing &amp; usage</h1>
+        <h1 className="display text-2xl">Billing &amp; usage</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Credits, storage and generation history for this workspace.
         </p>
@@ -63,7 +63,7 @@ export default function BillingPage() {
           </p>
           {org && (
             <>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-edge">
                 <div
                   className="h-full rounded-full bg-accent"
                   style={{

@@ -20,11 +20,11 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover shadow-glow',
-  secondary: 'bg-white/[0.06] text-ink hover:bg-white/[0.10] border border-edge',
-  ghost: 'text-ink-muted hover:text-ink hover:bg-white/[0.05]',
+  primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm',
+  secondary: 'bg-canvas-overlay text-ink hover:bg-edge border border-edge',
+  ghost: 'text-ink-muted hover:text-ink hover:bg-canvas-overlay',
   danger: 'bg-danger/90 text-white hover:bg-danger',
-  outline: 'border border-edge-strong text-ink hover:bg-white/[0.05]',
+  outline: 'border border-edge-strong text-ink hover:bg-canvas-overlay',
 }
 
 const BUTTON_SIZES: Record<ButtonSize, string> = {
@@ -125,7 +125,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger'
 
 const BADGE_TONES: Record<BadgeTone, string> = {
-  neutral: 'bg-white/[0.06] text-ink-muted border-edge',
+  neutral: 'bg-canvas-overlay text-ink-muted border-edge',
   accent: 'bg-accent-muted text-accent border-accent/30',
   success: 'bg-success/10 text-success border-success/25',
   warning: 'bg-warning/10 text-warning border-warning/25',
@@ -185,7 +185,7 @@ export function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-edge
                    accent-accent [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
                    [&::-webkit-slider-thumb]:bg-accent"
@@ -220,7 +220,7 @@ export function Switch({
         onClick={() => onChange(!checked)}
         className={cn(
           'relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition',
-          checked ? 'bg-accent' : 'bg-white/15',
+          checked ? 'bg-accent' : 'bg-edge-strong',
         )}
       >
         <span
@@ -282,7 +282,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 p-4 backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >

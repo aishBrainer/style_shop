@@ -57,7 +57,7 @@ export default function ProductPhotographyPage() {
   return (
     <div className="mx-auto max-w-[1600px]">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Product Photography</h1>
+        <h1 className="display text-2xl">Product Photography</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Turn a plain product shot into a styled studio image.
         </p>

@@ -56,7 +56,7 @@ function VerifyEmail() {
       {state === 'ok' && (
         <>
           <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
-          <h1 className="mt-4 text-lg font-medium">Email verified</h1>
+          <h1 className="mt-4 display text-xl">Email verified</h1>
           <p className="mt-1 text-sm text-ink-muted">Your account is fully active.</p>
           <Link href="/dashboard" className="mt-6 block">
             <Button className="w-full">Go to your studio</Button>
@@ -67,7 +67,7 @@ function VerifyEmail() {
       {state === 'error' && (
         <>
           <XCircle className="mx-auto h-8 w-8 text-danger" />
-          <h1 className="mt-4 text-lg font-medium">Could not verify</h1>
+          <h1 className="mt-4 display text-xl">Could not verify</h1>
           <p className="mt-1 text-sm text-ink-muted">{message}</p>
           <Link href="/settings" className="mt-6 block">
             <Button variant="secondary" className="w-full">Request a new link</Button>

@@ -46,7 +46,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <Card>
-        <h1 className="text-lg font-medium">Invalid reset link</h1>
+        <h1 className="display text-xl">Invalid reset link</h1>
         <p className="mt-2 text-sm text-ink-muted">
           That link is missing its token. Request a new one.
         </p>
@@ -59,7 +59,7 @@ function ResetPasswordForm() {
 
   return (
     <Card>
-      <h1 className="text-lg font-medium">Choose a new password</h1>
+      <h1 className="display text-xl">Choose a new password</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <Field label="New password" hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}>

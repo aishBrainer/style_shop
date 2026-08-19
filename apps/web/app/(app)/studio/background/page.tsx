@@ -70,7 +70,7 @@ export default function BackgroundStudioPage() {
   return (
     <div className="mx-auto max-w-[1600px]">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Background Studio</h1>
+        <h1 className="display text-2xl">Background Studio</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Cut out the subject, or drop it into a new scene.
         </p>

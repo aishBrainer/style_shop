@@ -48,7 +48,7 @@ export default function ProjectsPage() {
     <div className="mx-auto max-w-6xl">
       <header className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Projects</h1>
+          <h1 className="display text-2xl">Projects</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Group a collection&apos;s products, models and creatives together.
           </p>
@@ -83,7 +83,7 @@ export default function ProjectsPage() {
                   className="mb-3 aspect-video w-full rounded-lg object-cover"
                 />
               ) : (
-                <div className="mb-3 grid aspect-video w-full place-items-center rounded-lg bg-white/[0.03]">
+                <div className="mb-3 grid aspect-video w-full place-items-center rounded-lg bg-canvas-overlay">
                   <FolderOpen className="h-6 w-6 text-ink-faint" />
                 </div>
               )}

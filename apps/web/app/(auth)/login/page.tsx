@@ -50,7 +50,7 @@ function LoginForm() {
 
   return (
     <Card>
-      <h1 className="text-lg font-medium">Welcome back</h1>
+      <h1 className="display text-xl">Welcome back</h1>
       <p className="mt-1 text-sm text-ink-muted">Sign in to your studio.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

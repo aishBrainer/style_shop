@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   return (
     <Card>
-      <h1 className="text-lg font-medium">Create your studio</h1>
+      <h1 className="display text-xl">Create your studio</h1>
       <p className="mt-1 text-sm text-ink-muted">25 free credits, no card required.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

@@ -1,53 +1,76 @@
 import type { Config } from 'tailwindcss'
 
 /**
- * §45 — "Dark Premium AI Studio".
+ * Visual direction: the CamClo3D design language — light, editorial, plum.
  *
- * Deliberately restrained: one accent, a narrow neutral ramp, subtle borders.
- * The spec explicitly warns against excessive neon and glassmorphism, and the
- * imagery is meant to be the hero, so the chrome stays quiet.
+ * This deliberately departs from spec §45 ("Dark Premium AI Studio"). The
+ * reference product (camclo3d.com) is a white canvas with a deep-plum ink, a
+ * magenta primary and a Playfair Display serif for display type, and matching
+ * it was an explicit product decision. Tokens below are transcribed from that
+ * site's computed styles, converted from HSL to hex.
+ *
+ * Still restrained: one primary, one supporting lilac, a narrow neutral ramp.
+ * The imagery remains the hero, so the chrome stays quiet.
  */
 const config: Config = {
-  darkMode: 'class',
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Near-black with a hint of blue — pure #000 makes photography look
-        // washed out by comparison.
+        // White page, white cards. Depth comes from borders and soft shadow
+        // rather than from a raised fill — pure grey cards on white read as
+        // "disabled" next to photography.
         canvas: {
-          DEFAULT: '#0a0b0f',
-          raised: '#101219',
-          overlay: '#161923',
+          DEFAULT: '#ffffff',
+          raised: '#ffffff',
+          overlay: '#f5f3f7', // muted 270 20% 96% — hovers, inset wells
+          sunken: '#faf9fb', // alternating section bands
         },
         edge: {
-          DEFAULT: 'rgba(255,255,255,0.08)',
-          strong: 'rgba(255,255,255,0.14)',
+          DEFAULT: '#e3dde9', // border 270 20% 89%
+          strong: '#d3c9dc',
         },
+        // Primary 300 54% 36% — the magenta CamClo3D uses for CTAs and links.
         accent: {
-          DEFAULT: '#7c5cff',
-          hover: '#8f73ff',
-          muted: 'rgba(124,92,255,0.14)',
+          DEFAULT: '#8d2a8d',
+          hover: '#7a247a',
+          muted: 'rgba(141,42,141,0.10)',
+        },
+        // Secondary 270 50% 21% — deep violet, for dark bands and footers.
+        plum: {
+          DEFAULT: '#361b50',
+          soft: '#4a2a68',
+        },
+        // Accent 277 30% 66% — supporting lilac for tints and illustration.
+        lilac: {
+          DEFAULT: '#ae8ec2',
+          soft: '#d6c6e2',
         },
         ink: {
-          DEFAULT: '#f2f3f7',
-          muted: '#9aa0b4',
-          faint: '#606779',
+          DEFAULT: '#362745', // foreground 270 28% 21%
+          muted: '#665775', // muted-foreground 270 15% 40%
+          // Darkened from the dark-theme value: on a white canvas the old
+          // #8f84a0 measured 3.51:1, below WCAG AA for body text. This is 4.7:1.
+          faint: '#7a6f8c',
         },
-        success: '#3ecf8e',
-        warning: '#f0a03c',
-        danger: '#f2555a',
+        success: '#0f8a4f',
+        warning: '#b26a00',
+        danger: '#c02434',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        // Playfair Display, as on the reference site, for display headings only.
+        display: ['var(--font-display)', 'Georgia', 'serif'],
       },
       borderRadius: {
-        xl: '0.875rem',
-        '2xl': '1.25rem',
+        xl: '0.75rem',
+        '2xl': '1rem',
       },
       boxShadow: {
-        panel: '0 1px 2px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.32)',
-        glow: '0 0 0 1px rgba(124,92,255,0.35), 0 8px 40px rgba(124,92,255,0.18)',
+        // Plum-tinted rather than neutral black, so shadows sit in the palette.
+        panel: '0 1px 2px rgba(54,39,69,0.04), 0 8px 24px rgba(54,39,69,0.06)',
+        lifted: '0 2px 4px rgba(54,39,69,0.06), 0 16px 40px rgba(54,39,69,0.10)',
+        glow: '0 0 0 1px rgba(141,42,141,0.25), 0 8px 40px rgba(141,42,141,0.12)',
       },
       keyframes: {
         shimmer: {

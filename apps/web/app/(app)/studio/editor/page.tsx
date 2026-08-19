@@ -111,7 +111,7 @@ export default function ImageEditorPage() {
   return (
     <div className="mx-auto max-w-[1600px]">
       <header className="mb-6">
-        <h1 className="text-xl font-semibold">Image Editor</h1>
+        <h1 className="display text-2xl">Image Editor</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Retouch, fill, erase, upscale and expand your generated images.
         </p>

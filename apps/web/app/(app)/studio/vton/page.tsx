@@ -90,7 +90,7 @@ export default function VirtualTryOnPage() {
     <div className="mx-auto max-w-[1600px]">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Virtual Try-On</h1>
+          <h1 className="display text-2xl">Virtual Try-On</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Put a garment on any model. Results are AI-generated and vary with input quality.
           </p>

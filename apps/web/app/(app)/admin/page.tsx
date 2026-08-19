@@ -27,7 +27,7 @@ export default function AdminPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <header className="mb-6">
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
+        <h1 className="flex items-center gap-2 display text-2xl">
           <ShieldCheck className="h-5 w-5 text-accent" /> Admin
         </h1>
         <p className="mt-1 text-sm text-ink-muted">Platform health and configuration.</p>
@@ -160,7 +160,7 @@ function Workers() {
                 <p className="text-xs text-ink-muted">{worker.gpu_name as string}</p>
                 {vramTotal && vramUsed !== null && (
                   <>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-edge">
                       <div
                         className="h-full rounded-full bg-accent"
                         style={{ width: `${(vramUsed / vramTotal) * 100}%` }}
